@@ -1,13 +1,15 @@
 <template>
     <router-link to="/newsDetailed" class="pull-right">
-        <el-button type="danger">新增</el-button>
-        <el-button type="danger" size="mini" @click="handlerDetailed">编辑</el-button>
+        <el-button type="danger" @click="true">新增</el-button>
     </router-link>
     <el-col :span="18" class="main">
         <el-form :inline="true" label-width="80px">
             <el-form-item label="类别 : ">
-                <el-select placeholder="请选择" class="width-160">
+                <el-select placeholder="请选择" class="width-160" v-model="value">
+                    <el-option v-for="item in data.category_option" :key="item.value" :label="item.label"
+                        :value="item.value"></el-option>
                 </el-select>
+                {{ value }}
             </el-form-item>
             <el-form-item label="关键字 : ">
                 <el-select placeholder="ID" class="width-120">
@@ -23,7 +25,9 @@
             </el-form-item>
         </el-form>
     </el-col>
-    <el-table ref="table" border :data="data.tableData" style="width: 100%;" @selection-change="handelerSelectionChange">
+    <el-table :data="data.tableData" style="width: 100%;">
+        
+        {{ data.tableData }}
         <!-- 表格组件 -->
         <el-table-column type="selection" width="100"></el-table-column>
         <!-- 多选框 -->
@@ -31,7 +35,7 @@
         <!-- 表的行 -->
         <el-table-column prop="address" label="类别"></el-table-column>
         <el-table-column prop="date" label="日期"></el-table-column>
-        <el-table-column prop="address" label="操作" width="200">
+        <el-table-column label="操作" width="200">
             <template #default="scope">
                 <el-button type="danger" size="mini">编辑</el-button>
                 <el-button type="danger" size="mini">删除</el-button>
@@ -44,13 +48,9 @@
         </el-col>
         <el-col :span="18">
             <!-- 分页栏组件 -->
-            <el-pagination class="pull-right" sizs="small" background @size-change="handlerSizeChange"
-                @current-change="handlerCurrentChange" :current-page="data.current_page" :page-size="10"
-                :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
-                :total="data.total"></el-pagination>
+           
         </el-col>
     </el-row>
-
 </template>
 <script setup>
 import { reactive, ref, getCurrentInstance, onBeforeUnmount, onBeforeMount } from 'vue'
@@ -58,9 +58,23 @@ import { routerKey, useRouter, useRoute } from "vue-router";
 import { GetTableList } from "../../api/info"
 const router = useRouter()
 const { push } = useRouter();
+
+const value = ref("")
 const data = reactive(
     {
         total: 0,
+
+        category_option:
+            [
+                {
+                    label: "Web前端", value: 0,
+
+                },
+                {
+                    label: "Web前端", value: 1
+                }
+            ]
+        ,
         tableData: [
             {
                 name: "彭逸钊", address: "长沙市雨花区", data: "2023-6.5"
@@ -89,52 +103,9 @@ const data = reactive(
     }
 )
 
-const request_data = reactive(
-    {
-        pageNumber: 1, // 当前页码
-        pageSize: 10, //  每页请求数量
-    }
-)
-
 // 获取当前分类
 
-const handlerGetList = () => {
-    GetTableList(request_data).then(
-        response => {
-            const response_data = response.data
-            data.tableData = response_data.data
-            data.total = response.total
-        }
-    )
-}
 
-onBeforeMount(
-    () => {
-        handlerGetList();
-    }
-)
-// 多选事件
-
-const handelerSelectionChange = (val) => {
-    return { data, handelerSelectionChange }
-}
-
-const handlerSizeChange = (val) => {
-
-}
-
-const handlerCurrentChange = (val) => {
-
-}
-
-
-const handlerDetailed = (val) => {
-    push(
-        {
-            path: "/newsDetailed"
-        }
-    )
-}
 </script>
 
 

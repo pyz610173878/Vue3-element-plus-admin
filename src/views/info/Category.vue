@@ -38,242 +38,227 @@
     </el-row>
 </template>
 
-<script>
+<script setup>
 import { ref, reactive, getCurrentInstance, onBeforeMount } from 'vue';
 import { firstCategoryAdd, GetCategory, ChildCategoryAdd, CategoryEdit, CategoryDel } from "@/api/info";
-export default {
-    name: 'InfoCategory',
-    components: {},
-    props: {},
-    setup(props) {
-        // 获取实例上下文
-        const { proxy } = getCurrentInstance();
-        const data = reactive({
-            tree_data: [],
-            defaultProps: {
-                children: 'children',
-                label: 'category_name'
-            },
-            parent_category: "父级分类文本演示",   // 父级分类
-            sub_category: "子级分类文本演示",      // 子级分类
-            button_loading: false,  // 按钮加载
-            parent_category_data: {},
-            sub_category_data: {}
-        })
-        const config = reactive({
-            type: "default",
-            default: {
-                title: "添加分类",        // 标题
-                parent_disabled: true,   // 父级分类禁用/启用
-                sub_disabled: true,      // 子级分类禁用/启用
-                sub_show: true,          // 子级分类显示/隐藏
-                clear: ["parent_category", "sub_category"]
-            },
-            first_category_add: {
-                title: "一级分类添加",    // 标题
-                parent_disabled: false,   // 父级分类禁用/启用
-                sub_disabled: true,      // 子级分类禁用/启用
-                sub_show: false,         // 子级分类显示/隐藏
-                clear: ["parent_category", "sub_category"]
-            },
-            child_category_add: {
-                title: "子级分类添加",    // 标题
-                parent_disabled: true,   // 父级分类禁用/启用
-                sub_disabled: false,      // 子级分类禁用/启用
-                sub_show: true,
-                clear: ["sub_category"],
-                create: ["parent_category"]
-            },
-            parent_category_edit: {
-                title: "父级分类编辑",    // 标题
-                parent_disabled: false,   // 父级分类禁用/启用
-                sub_disabled: true,      // 子级分类禁用/启用
-                sub_show: false,
-                create: ["parent_category"]
-            },
-            child_category_edit: {
-                title: "子级分类编辑",    // 标题
-                parent_disabled: true,   // 父级分类禁用/启用
-                sub_disabled: false,      // 子级分类禁用/启用
-                sub_show: true,
-                create: ["parent_category", "sub_category"]
-            }
-        });
+// 获取实例上下文
+const { proxy } = getCurrentInstance();
+const data = reactive({
+    tree_data: [],
+    defaultProps: {
+        children: 'children',
+        label: 'category_name'
+    },
+    parent_category: "父级分类文本演示",   // 父级分类
+    sub_category: "子级分类文本演示",      // 子级分类
+    button_loading: false,  // 按钮加载
+    parent_category_data: {},
+    sub_category_data: {}
+})
+const config = reactive({
+    type: "default",
+    default: {
+        title: "添加分类",        // 标题
+        parent_disabled: true,   // 父级分类禁用/启用
+        sub_disabled: true,      // 子级分类禁用/启用
+        sub_show: true,          // 子级分类显示/隐藏
+        clear: ["parent_category", "sub_category"]
+    },
+    first_category_add: {
+        title: "一级分类添加",    // 标题
+        parent_disabled: false,   // 父级分类禁用/启用
+        sub_disabled: true,      // 子级分类禁用/启用
+        sub_show: false,         // 子级分类显示/隐藏
+        clear: ["parent_category", "sub_category"]
+    },
+    child_category_add: {
+        title: "子级分类添加",    // 标题
+        parent_disabled: true,   // 父级分类禁用/启用
+        sub_disabled: false,      // 子级分类禁用/启用
+        sub_show: true,
+        clear: ["sub_category"],
+        create: ["parent_category"]
+    },
+    parent_category_edit: {
+        title: "父级分类编辑",    // 标题
+        parent_disabled: false,   // 父级分类禁用/启用
+        sub_disabled: true,      // 子级分类禁用/启用
+        sub_show: false,
+        create: ["parent_category"]
+    },
+    child_category_edit: {
+        title: "子级分类编辑",    // 标题
+        parent_disabled: true,   // 父级分类禁用/启用
+        sub_disabled: false,      // 子级分类禁用/启用
+        sub_show: true,
+        create: ["parent_category", "sub_category"]
+    }
+});
 
-        const categoryTree = ref(null);
-        const handlerCategory = (type, category_data) => {
-            console.log(category_data);
-            console.log(123);
-            if (type === "child_category_edit") {
-                data.parent_category_data = category_data.parent || null;
-                data.sub_category_data = category_data || null;
-            } else {
-                data.parent_category_data = category_data || null;
-            }
-            config.type = type === "delete_category" ? "default" : type;
-            // 文本清除、还原
-            handlerInputValue();
-            // 弹窗二次提示
-            (type === "delete_category") && handlerDeleteComfirm();
-        }
-        const handlerInputValue = () => {
-            // 获取清除数据的对象
-            const clearObject = config[config.type].clear;
-            // 获取还原数据的对象
-            const createObject = config[config.type].create;
-            // 执行清除动作
-            if (clearObject && clearObject.length > 0) {
-                clearObject.forEach(item => {
-                    data[item] = "";
-                })
-            }
-            // 执行还原动作
-            if (createObject && createObject.length > 0) {
-                createObject.forEach(item => {
-                    data[item] = data[`${item}_data`].data.category_name;
-                })
-            }
-        }
-        // 
-        const handlerSubmit = () => {
-            if (config.type === 'first_category_add') { handlerFirstCategoryAdd(); }
-            if (config.type === 'child_category_add') { handlerChildCategoryAdd(); }
-            if (config.type === 'child_category_edit' || config.type === 'parent_category_edit') { handlerCategoryEdit(); }
-        }
-        // 一级分类添加
-        const handlerFirstCategoryAdd = () => {
-            // 父级为空时提示
-            if (!data.parent_category) {
-                proxy.$message.error("父级分类不能为空");
-                return false
-            }
-            data.button_loading = true;
-            firstCategoryAdd({ categoryName: data.parent_category }).then(response => {
-                data.button_loading = false;
-                proxy.$message({
-                    message: response.message,
-                    type: "success"
-                })
-                data.parent_category = "";
-            }).catch(error => {
-                data.button_loading = false;
-            })
-        }
-        const handlerGetCategory = () => {
-            GetCategory().then(response => {
-                const response_data = response.data
-                data.tree_data = response_data || [];
-            })
-        }
-        // 子级分类添加
-        const handlerChildCategoryAdd = () => {
-            // 子级为空时提示
-            if (!data.sub_category) {
-                proxy.$message.error("子级分类不能为空");
-                return false
-            }
-            // 按钮加载状态
-            data.button_loading = true;
-            // 接口
-            ChildCategoryAdd({
-                categoryName: data.sub_category,           // 分类名称参数
-                parentId: data.parent_category_data.data.id     // 父级分类ID参数
-            }).then(response => {
-                // 清除加载状态
-                data.button_loading = false;
-                // 成功提示
-                proxy.$message({
-                    message: response.message,
-                    type: "success"
-                })
-                // 清除子级分类文本
-                data.sub_category = "";
-                // 追加子级数据
-                categoryTree.value.append(response.data, data.parent_category_data);
-            }).catch(error => {
-                // 清除加载状态
-                data.button_loading = false;
-            })
-        }
-        // 分类编辑
-        const handlerCategoryEdit = () => {
-            // 分级为空时提示
-            console.log(!data.parent_category);
-            console.log(data.sub_category);
-            if (data.parent_category == "" || data.sub_category == "") {
-                const message = config.type === "parent_category_edit" ? "父级" : "子级";
-                proxy.$message.error(`${message}分类不能为空`);
-                return false
-            }
-            // 按钮加载状态
-            data.button_loading = true;
-            const node_parent = data.parent_category_data.data
-            const node_sub = data.sub_category_data.data
-            // 接口
-            CategoryEdit({
-                categoryName: config.type === "parent_category_edit" ? data.parent_category : data.sub_category,           // 分类名称参数
-                id: config.type === "parent_category_edit" ? node_parent.id : node_sub.id      // 分类ID参数
-            }).then(response => {
-                // 清除加载状态
-                data.button_loading = false;
-                // 成功提示
-                proxy.$message({
-                    message: response.message,
-                    type: "success"
-                })
-                // 同步更新树形菜单节点
-                const node_date = config.type === "parent_category_edit" ? node_parent : node_sub;
-                node_date.category_name = response.data.category_name;
-            }).catch(error => {
-                // 清除加载状态
-                data.button_loading = false;
-            })
-        }
-        const handlerDeleteComfirm = () => {
-            proxy.$confirm('确认删除该分类吗？删除后将无法恢复', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                showClose: false,            // 取消右上角关闭按钮
-                closeOnClickModal: false,    // 取消点击遮罩关闭 MessageBox
-                closeOnPressEscape: false,   // 取消按下ESC键关闭MessageBox
-                type: 'warning',
-                beforeClose: (action, instance, done) => {
-                    if (action === "confirm") {
-                        instance.confirmButtonLoading = true;
-                        CategoryDel({ categoryId: data.parent_category_data.data.id }).then(response => {
-                            // 成功提示
-                            proxy.$message({
-                                message: response.message,
-                                type: "success"
-                            })
-                            instance.confirmButtonLoading = false;
-                            done();
-                            // 删除交互
-                            categoryTree.value.remove(data.parent_category_data);
-                        }).catch(error => {
-                            instance.confirmButtonLoading = false;
-                            done();
-                        })
-                    }
-                    else {
-                        done();
-                    }
-                }
-            })
-        }
-        onBeforeMount(() => {
-            handlerGetCategory();
+const categoryTree = ref(null);
+const handlerCategory = (type, category_data) => {
+    console.log(category_data);
+    console.log(123);
+    if (type === "child_category_edit") {
+        data.parent_category_data = category_data.parent || null;
+        data.sub_category_data = category_data || null;
+    } else {
+        data.parent_category_data = category_data || null;
+    }
+    config.type = type === "delete_category" ? "default" : type;
+    // 文本清除、还原
+    handlerInputValue();
+    // 弹窗二次提示
+    (type === "delete_category") && handlerDeleteComfirm();
+}
+const handlerInputValue = () => {
+    // 获取清除数据的对象
+    const clearObject = config[config.type].clear;
+    // 获取还原数据的对象
+    const createObject = config[config.type].create;
+    // 执行清除动作
+    if (clearObject && clearObject.length > 0) {
+        clearObject.forEach(item => {
+            data[item] = "";
         })
-        return {
-            data,
-            // handleNodeClick,
-            handlerCategory,
-            handlerSubmit,
-            config,
-            categoryTree
-        }
+    }
+    // 执行还原动作
+    if (createObject && createObject.length > 0) {
+        createObject.forEach(item => {
+            data[item] = data[`${item}_data`].data.category_name;
+        })
     }
 }
+// 
+const handlerSubmit = () => {
+    if (config.type === 'first_category_add') { handlerFirstCategoryAdd(); }
+    if (config.type === 'child_category_add') { handlerChildCategoryAdd(); }
+    if (config.type === 'child_category_edit' || config.type === 'parent_category_edit') { handlerCategoryEdit(); }
+}
+// 一级分类添加
+const handlerFirstCategoryAdd = () => {
+    // 父级为空时提示
+    if (!data.parent_category) {
+        proxy.$message.error("父级分类不能为空");
+        return false
+    }
+    data.button_loading = true;
+    firstCategoryAdd({ categoryName: data.parent_category }).then(response => {
+        data.button_loading = false;
+        proxy.$message({
+            message: response.message,
+            type: "success"
+        })
+        data.parent_category = "";
+    }).catch(error => {
+        data.button_loading = false;
+    })
+}
+const handlerGetCategory = () => {
+    GetCategory().then(response => {
+        const response_data = response.data
+        data.tree_data = response_data || [];
+    })
+}
+// 子级分类添加
+const handlerChildCategoryAdd = () => {
+    // 子级为空时提示
+    if (!data.sub_category) {
+        proxy.$message.error("子级分类不能为空");
+        return false
+    }
+    // 按钮加载状态
+    data.button_loading = true;
+    // 接口
+    ChildCategoryAdd({
+        categoryName: data.sub_category,           // 分类名称参数
+        parentId: data.parent_category_data.data.id     // 父级分类ID参数
+    }).then(response => {
+        // 清除加载状态
+        data.button_loading = false;
+        // 成功提示
+        proxy.$message({
+            message: response.message,
+            type: "success"
+        })
+        // 清除子级分类文本
+        data.sub_category = "";
+        // 追加子级数据
+        categoryTree.value.append(response.data, data.parent_category_data);
+    }).catch(error => {
+        // 清除加载状态
+        data.button_loading = false;
+    })
+}
+// 分类编辑
+const handlerCategoryEdit = () => {
+    // 分级为空时提示
+    console.log(!data.parent_category);
+    console.log(data.sub_category);
+    if (data.parent_category == "" || data.sub_category == "") {
+        const message = config.type === "parent_category_edit" ? "父级" : "子级";
+        proxy.$message.error(`${message}分类不能为空`);
+        return false
+    }
+    // 按钮加载状态
+    data.button_loading = true;
+    const node_parent = data.parent_category_data.data
+    const node_sub = data.sub_category_data.data
+    // 接口
+    CategoryEdit({
+        categoryName: config.type === "parent_category_edit" ? data.parent_category : data.sub_category,           // 分类名称参数
+        id: config.type === "parent_category_edit" ? node_parent.id : node_sub.id      // 分类ID参数
+    }).then(response => {
+        // 清除加载状态
+        data.button_loading = false;
+        // 成功提示
+        proxy.$message({
+            message: response.message,
+            type: "success"
+        })
+        // 同步更新树形菜单节点
+        const node_date = config.type === "parent_category_edit" ? node_parent : node_sub;
+        node_date.category_name = response.data.category_name;
+    }).catch(error => {
+        // 清除加载状态
+        data.button_loading = false;
+    })
+}
+const handlerDeleteComfirm = () => {
+    proxy.$confirm('确认删除该分类吗？删除后将无法恢复', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        showClose: false,            // 取消右上角关闭按钮
+        closeOnClickModal: false,    // 取消点击遮罩关闭 MessageBox
+        closeOnPressEscape: false,   // 取消按下ESC键关闭MessageBox
+        type: 'warning',
+        beforeClose: (action, instance, done) => {
+            if (action === "confirm") {
+                instance.confirmButtonLoading = true;
+                CategoryDel({ categoryId: data.parent_category_data.data.id }).then(response => {
+                    // 成功提示
+                    proxy.$message({
+                        message: response.message,
+                        type: "success"
+                    })
+                    instance.confirmButtonLoading = false;
+                    done();
+                    // 删除交互
+                    categoryTree.value.remove(data.parent_category_data);
+                }).catch(error => {
+                    instance.confirmButtonLoading = false;
+                    done();
+                })
+            }
+            else {
+                done();
+            }
+        }
+    })
+}
+onBeforeMount(() => {
+    handlerGetCategory();
+})
 </script>
 <style lang="scss" scoped>
 .spacing-hr {

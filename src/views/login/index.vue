@@ -80,7 +80,6 @@ const axios = instance?.appContext.config.globalProperties.$axios;
 const router = useRouter()
 const store = useStore();
 
-
 const validate_name_rules = (rule, value, callback) => {
     let regEmail = validate_email(value);
     if (value === '') {
@@ -261,6 +260,7 @@ const getCaptchaOnClick = () => {
         data.code_button_text = `${second}`;
         // if (data.code_button_timer) { clearInterval(data.code_button_timer) };
         // 开启定时器  
+
         const code_button_timer = setInterval(() => {
             second--;
             data.code_button_text = `${second}`;  // 按钮文本
@@ -283,7 +283,7 @@ const submitForm = (formName) => {
     account_form.value.validate((valid) => {
         if (valid) {
             //    根据data.current_menu的值来调用对应的函数
-            data.current_menu === "login" ? logins() : register();
+            data.current_menu === "login" ? login() : register();
         } else {
             alert('表单验证不通过');
             return false;
@@ -325,15 +325,13 @@ const login = () => {
 
 const logins = () => {
 
-    router.replace({ path: "/console" })
+    router.replace({ path: "/user" })
 
 }
 
 // 注册函数
 
 const register = () => {
-
-
     const requestData = {
         username: data.form.username,
         password: sha1(data.form.password),
@@ -356,12 +354,10 @@ const register = () => {
 
 // 清空函数
 const reset = () => {
-
-
     account_form.value.resetFields()
     data.form.passwords = "";
     data.current_menu = "login";
-    code_button_timer && clearInterval(code_button_timer);
+    // code_button_timer && clearInterval(code_button_timer);
     // 获取验证码重置文本
     data.code_button_text = "获取验证码";
     // 获取验证码激活
@@ -370,7 +366,7 @@ const reset = () => {
     data.submit_button_disabled = true;
     // 取消提交按钮加载
     data.submit_button_loading = false;
-    clearInterval(code_button_timer);
+    // clearInterval(code_button_timer);
 }
 
 

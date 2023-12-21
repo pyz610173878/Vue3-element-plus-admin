@@ -6,7 +6,7 @@ import { ElMessage } from 'element-plus'
 import router from "@/router";
 
 const instance = axios.create({
-    baseURL: 'http://www.web-jshtml.cn/api/v3',    // 请求地址
+    baseURL: 'http://v3.web-jshtml.cn/api',    // 请求地址
     timeout: 5000,  // 超时
 });
 // 拦截器
