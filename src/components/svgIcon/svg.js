@@ -18,4 +18,3 @@ const svgModules = import.meta.globEager('./icon/*.svg')
 const svgFiles = Object.keys(svgModules).map(filePath => svgModules[filePath])
 
 // Now svgFiles is an array of all your SVG files
-console.log(svgFiles)

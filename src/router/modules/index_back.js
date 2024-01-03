@@ -33,8 +33,8 @@ export default [
         // redirect: '/dashboard',
         name: '/User',
         meta: {
-            title:  '用户管理',
-            icon:"user",
+            title: '用户管理',
+            icon: "user",
         },
         component: () => import('@/layout/index.vue'),
         children: [

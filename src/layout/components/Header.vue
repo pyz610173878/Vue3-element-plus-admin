@@ -31,8 +31,6 @@ export default {
         // Vuex
         const store = useStore();
         const tokens = getToken()
-        
-        console.log(store.state.token,'TOKEN');
         // 引入router
         const { replace } = useRouter();
         // 菜单按钮
