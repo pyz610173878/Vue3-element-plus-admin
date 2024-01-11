@@ -50,6 +50,7 @@
                             <el-form-item label="">
                                 <el-button type="danger" @click="handlerSubmit"
                                     :loading="data.button_loading">确定</el-button>
+                                    <el-button type="danger" @click="testes">12321</el-button>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -66,6 +67,18 @@ const { proxy } = getCurrentInstance();
 
 
 // 定义交互变量
+
+const testes = (value) => {
+    console.log(value,'测试');
+    
+    proxy.test(
+        {
+            title: '删除',
+            message: '确定删除'
+        }
+    )
+}
+
 
 
 // 1. 分类表单
@@ -273,8 +286,8 @@ const handlerCategoryEdit = () => {
     )
 }
 
-// 删除节点
 
+/** 删除分类函数*/
 const handlerDeleteComfirm = () => {
     // 参数跟编辑一样。
     // 弹窗信息不知道。

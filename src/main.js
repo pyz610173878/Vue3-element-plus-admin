@@ -24,8 +24,8 @@ import "./components/svgIcon/svg";
 import 'element-plus/dist/index.css'
 import "./styles/main.less"
 
-
-
+// 全局方法
+import Global from "@/utils/global";
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;
@@ -34,6 +34,7 @@ app.component("svg-icon", SvgIcon)
 app.use(router)
 .use(store)
 .use(ElementUI)
+.use(Global)
 .mount('#app');
 
 
