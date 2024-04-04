@@ -7,25 +7,16 @@
 
         </div>
         <div class="header-right">
-            <img src="../../assets/avatar-ea67286d.gif" alt="610173878@qq.com" class="header-avatar">
-            <span class="name">{{ username }}</span>
-            <span class="logout" @click="handlerLogout">
-                <svg-icon name="logout" class="icon-logout"></svg-icon>
-            </span>
         </div>
     </div>
 </template>
   
-<script>
-import { ref, getCurrentInstance } from "vue";
+<script setup lang="ts">
+import { ref, getCurrentInstance} from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { getToken } from "../../utils/cookies";
-export default {
-    name: "Header",
-    components: {},
-    props: {},
-    setup() {
+import {ElMessage} from "element-plus";
         // 获取实例上下文
         const { proxy } = getCurrentInstance();
         // Vuex
@@ -59,15 +50,6 @@ export default {
                 })
             }).catch(error => { });
         })
-
-        return {
-            switchAside,
-            handlerLogout,
-            username
-        }
-
-    }
-};
 </script>
   
 

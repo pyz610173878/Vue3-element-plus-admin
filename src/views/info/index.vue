@@ -5,23 +5,20 @@
     <el-col :span="18" class="main">
         <el-form :inline="true" label-width="80px">
             <el-form-item label="类别 : ">
-                <el-cascader v-model="data.category_id" :options="category_data.category_options"
+                <el-cascader v-model="request_data.category_id" :options="category_data.category_options"
                     :props="data.cascader_props">
+
                 </el-cascader>
             </el-form-item>
             <el-form-item label="关键字 : ">
                 <el-select label-width="80px" v-model="request_data.key">
-                    <el-option v-for="item in data.keyword_options" :value="item.value" :label="item.label"  ></el-option>
-                    {{ request_data.key }}
+                    <el-option v-for="item in data.keyword_options" :value="item.value" :label="item.label"></el-option>
+
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-input placeholder="请输入关键字" label-width="80px" v-model="request_data.keyword"></el-input>
-                <el-button type="danger" @click="handlerkeyword(request_data.keyword)">搜索</el-button>
-            </el-form-item>
-            <el-form-item class="pull-right">
-
-
+                <el-input placeholder="请输入关键字" v-model="request_data.keyword"></el-input>
+                
             </el-form-item>
         </el-form>
     </el-col>
@@ -77,24 +74,25 @@ const value = ref("")
 const total = ref(100)
 
 const { infoData: category_data, handlerGetCategory: getList } = categoryHook();
+// 说实话五年程序员写的代码都这么垃圾。没有存在那种编码习惯。
 
+function log() {
+    console.log.apply(console, arguments)
 
-
+}
+// 这个如何写成 全局的？
 
 const handlerSelectionChange = (val) => {
     if (val.length > 0) {
         const iditme = val.map(item => item.id)
         console.log(iditme);
-
     }
-
 }
 /** 分页接口定义*/
 interface Data {
     total: number;
     current_page: number;
     tableData: any[];
-    category_id: []
     status: boolean
     // loading: boolean
     row_id: string
@@ -108,7 +106,6 @@ interface Data {
 const data: Data = reactive({
     total: 0,
     current_page: 1,
-    category_id: [],
     tableData: [],
     status: true,
     row_id: '',
@@ -117,8 +114,10 @@ const data: Data = reactive({
         value: "id",
     },
     keyword_options:
-        [{ label: 'ID', value: 'id' },
-        { label: '标题', value: 'title' },]
+        [
+            { label: 'ID', value: 'id' },
+            { label: '标题', value: 'title' },
+        ]
 });
 
 // 这意味着 data 是一个常量，其值不能被改变。如果需要改变 data 中的值，我们可以使用 toRefs 函数。
@@ -127,6 +126,7 @@ const data: Data = reactive({
 interface Request_data {
     pageNumber: Number
     pageSize: Number
+    category_id: []
     key?: string
     keyword?: string
 }
@@ -135,35 +135,57 @@ const request_data: Request_data = reactive(
     {
         pageNumber: 1, //当前页码
         pageSize: 10, //每页请求数量
+        category_id: [],
         key: '',
         keyword: ''
     }
 )
 
-const handlerkeyword = (val) => {
-    request_data.keyword = val
-    GetTableList(request_data).then(response => {
-        const request_data = response.data
-        console.log(request_data, "123");
 
-        data.tableData = request_data.data
-        data.total = request_data.total
-    })
-}
 
 /** 获取分页接口数据 */
 const hadlerGetList = () => {
+    const request_data = formatParms()
+    console.log(request_data);
+
     GetTableList(request_data).then(response => {
-        const request_data = response.data
-        data.tableData = request_data.data
-        data.total = request_data.total
+        const response_data = response.data
+        data.tableData = response_data.data
+        data.total = response_data.total
+
+
     })
 }
 
+/** 时间格式化 */
 const formatDate = (row) => {
     return getDate({ value: row.createDate * 1000 })
 
 }
+
+/** 接口数据格式化 */
+
+const formatParms = () => {
+
+    const datas = Object.assign({}, request_data);
+    // 拷贝数据
+    if (datas.category_id.length) {
+        datas.category_id = datas.category_id[datas.category_id.length - 1]
+    }
+    else {
+        delete datas.category_id;
+    }
+    if (datas.key && datas.keyword) { datas[datas.key] = datas.keyword }
+
+    delete datas.key;
+    delete datas.keyword
+
+    // 返回已处理的数据
+    return datas
+}
+
+
+
 /** 下拉框页面分页获取 */
 const handlerSizeChange = (val) => {
     request_data.pageSize = val;
@@ -232,7 +254,6 @@ const SwitchComfirm = (data) => {
     )
 
 }
-console.log(data.status);
 
 /** 挂载前运行的函数 */
 onBeforeMount(() => {

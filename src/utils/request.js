@@ -34,7 +34,6 @@ instance.interceptors.response.use(function (response) {
     // 对响应数据做点什么
     // 响应数据，就是服务器所返回的数据。
     const data = response.data;
-    console.log("服务器返回信息", data);
     if(data.resCode === 0) {
         return Promise.resolve(data);
     }else{

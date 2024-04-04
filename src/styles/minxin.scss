@@ -1,0 +1,23 @@
+/**
+1. 定义变量
+2. 
+**/// bem
+
+$namespace: 'el'; // 变量定义方式
+// mixin可以理解为CSS中的函数，允许你定义可重用的样式代码块 @mixin可以理解为定义函数的关键字，b为这个函数的名字。
+@mixin b($block) {
+  $B: $namespace + '-' + $block !global;  //定义变量，变量名一个表达式的值
+  .#{$B} {
+    @content; //替换成我写的css属性。
+  }
+}
+
+
+@mixin when($state) {
+  @at-root {   // @at-root 是一个Sass指令，它允许你将生成的CSS规则从当前的嵌套层级中提出来
+    // & 是一个Sass的特殊符号，代表当前选择器的父级
+    &.#{$state-prefix + $state} {
+      @content;
+    }
+  }
+}

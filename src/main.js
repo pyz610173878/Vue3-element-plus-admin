@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 
 // elementui
 import ElementUI from "./plugins/elementui";
-import App from './APPs.vue'
+import App from 'App.vue'
 import store from './store';
 import router from './router';
 

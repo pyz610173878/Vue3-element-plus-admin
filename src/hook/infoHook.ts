@@ -22,6 +22,7 @@ export const categoryHook = () => {
   const handlerGetCategory = () => {
     return GetCategory().then((response) => {
       infoData.category_options = response.data;
+      console.log(infoData.category_options, "分类名称");
     });
   };
 
